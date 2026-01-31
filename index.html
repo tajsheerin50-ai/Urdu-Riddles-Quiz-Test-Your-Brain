@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ur">
+
+<head>
+    <meta charset="UTF-8">
+    <title>اردو پہیلی کوئز</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        /* 🔁 BACKGROUND IMAGE LOOP (ONLY ADD) */
+        body {
+            margin: 0;
+            font-family: Poppins, Arial;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            animation: bgLoop 40s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            direction: rtl;
+        }
+
+        @keyframes bgLoop {
+            0% {
+                background:
+                    linear-gradient(120deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .4)),
+                    url("images/riddle01.png");
+            }
+
+            25% {
+                background:
+                    linear-gradient(120deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .4)),
+                    url("images/riddle01.png");
+            }
+
+            50% {
+                background:
+                    linear-gradient(120deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .4)),
+                    url("images/riddle01.png");
+            }
+
+            75% {
+                background:
+                    linear-gradient(120deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .4)),
+                    url("images/riddle01.png");
+            }
+
+            100% {
+                background:
+                    linear-gradient(120deg, rgba(0, 0, 0, .6), rgba(0, 0, 0, .4)),
+                    url("images/riddle01.png");
+            }
+        }
+
+        /* 🔁 END BACKGROUND LOOP */
+
+        .quiz {
+            background: #99eeee;
+            width: 95%;
+            max-width: 720px;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .4);
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .title-text {
+            font-size: 30px;
+            background: linear-gradient(45deg, #101011, #0e0f11);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .brain {
+            width: 38px;
+            height: 38px;
+            fill: #0612b8;
+            filter: drop-shadow(0 4px 8px rgba(142, 36, 170, .5));
+        }
+
+        .timer {
+            font-size: 26px;
+            color: #0612b8;
+            font-weight: bold
+        }
+
+        .score {
+            color: #111213;
+            margin: 10px 0
+        }
+
+        .question {
+            font-size: 22px;
+            margin: 20px 0;
+            font-weight: bold
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #3590e6;
+            transition: .2s;
+        }
+
+        .option:hover {
+            transform: scale(1.05)
+        }
+
+        .correct {
+            background: #039608 !important;
+            color: #fff
+        }
+
+        .wrong {
+            background: #f44336 !important;
+            color: #fff
+        }
+
+        .next {
+            margin-top: 20px;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 40px;
+            background: linear-gradient(45deg, #6aa805, #309601);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .win {
+            color: white;
+            text-align: center
+        }
+
+        .restart {
+            margin-top: 20px;
+            padding: 14px 45px;
+            border: none;
+            border-radius: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #04afdf, #0072ff);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 🔊 AUDIO (REPLACE ANYTIME) -->
+    <audio id="bgSound" loop src="sounds/game-music-loop-4-144341.mp3"></audio>
+    <audio id="correctSound" src="sounds/the-correct-answer-33-183620.mp3"></audio>
+    <audio id="wrongSound" src="sounds/buzzer-or-wrong-answer-20582.mp3"></audio>
+    <audio id="timerSound" src="sounds/10sec-digital-countdown-sfx-319873.mp3"></audio>
+    <audio id="winSound" src="sounds/cracker-sound-261119.mp3"></audio>
+
+    <div class="quiz" id="quizBox">
+        <div class="title">
+            <svg class="brain" viewBox="0 0 64 64">
+                <path
+                    d="M20 10c-5 0-9 4-9 9v2c-3 1-5 4-5 7 0 4 3 7 7 7h1v4c0 6 5 11 11 11h4V10h-9zm24 0h-9v40h4c6 0 11-5 11-11v-4h1c4 0 7-3 7-7 0-3-2-6-5-7v-2c0-5-4-9-9-9z" />
+            </svg>
+            <div class="title-text">اردو پہیلی کوئز</div>
+        </div>
+
+        <div class="timer" id="timer">⏱️ 10</div>
+        <div class="score" id="score">اسکور: 0</div>
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <button class="next" onclick="nextQ()">اگلا ➡️</button>
+    </div>
+
+    <script>
+        let audioUnlocked = false;
+        const bgSound = document.getElementById("bgSound");
+        const correctSound = document.getElementById("correctSound");
+        const wrongSound = document.getElementById("wrongSound");
+        const timerSound = document.getElementById("timerSound");
+        const winSound = document.getElementById("winSound");
+
+        document.body.addEventListener("click", () => {
+            if (!audioUnlocked) {
+                bgSound.volume = 0.4;
+                bgSound.play().then(() => bgSound.pause());
+                audioUnlocked = true;
+            }
+        }, { once: true });
+
+        /* ✅ 20 URDU RIDDLES WITH ANSWERS */
+        const quizData = [
+            { q: "وہ کیا ہے جو بولتا نہیں مگر سب کچھ کہہ دیتا ہے؟", o: ["کتاب", "پتھر", "دیوار", "درخت"], a: "کتاب" },
+            { q: "وہ کون سی چیز ہے جو جتنی بانٹو اتنی بڑھتی ہے؟", o: ["دولت", "خوشی", "روٹی", "غصہ"], a: "خوشی" },
+            { q: "وہ کیا ہے جس کے پاؤں نہیں مگر چلتا ہے؟", o: ["پانی", "ہوا", "وقت", "گاڑی"], a: "وقت" },
+            { q: "وہ کیا ہے جو پانی میں بھیگتا نہیں؟", o: ["کپڑا", "کاغذ", "سایہ", "مٹی"], a: "سایہ" },
+            { q: "وہ کون ہے جو آتا ضرور ہے مگر کبھی نہیں پہنچتا؟", o: ["آج", "کل", "ابھی", "پرسوں"], a: "کل" },
+            { q: "وہ کیا ہے جو سب کے پاس ہوتا ہے مگر کوئی دکھاتا نہیں؟", o: ["عقل", "پیسے", "موبائل", "دل"], a: "عقل" },
+            { q: "وہ کیا ہے جو بولے بغیر شور مچاتا ہے؟", o: ["خاموشی", "ٹی وی", "ڈھول", "موبائل"], a: "خاموشی" },
+            { q: "وہ کون سی چیز ہے جو نیند میں بھی کام کرتی ہے؟", o: ["دل", "دماغ", "خراٹے", "آنکھ"], a: "خراٹے" },
+            { q: "وہ کیا ہے جو صبح اٹھتے ہی سب سے پہلے دیکھا جاتا ہے؟", o: ["سورج", "گھڑی", "موبائل", "آئینہ"], a: "موبائل" },
+            { q: "وہ کیا ہے جو جتنا دباؤ ڈالو اتنا شور مچائے؟", o: ["دماغ", "دروازہ", "ٹی وی", "پنکھا"], a: "دماغ" },
+            { q: "وہ کیا ہے جو ٹوٹ جائے تو آواز نہیں آتی؟", o: ["دل", "خاموشی", "وعدہ", "خواب"], a: "خاموشی" },
+            { q: "وہ کیا ہے جو نظر نہیں آتا مگر محسوس ہوتا ہے؟", o: ["ہوا", "روشنی", "سایہ", "دھواں"], a: "ہوا" },
+            { q: "وہ کیا ہے جو سب سکھاتا ہے مگر خود خاموش رہتا ہے؟", o: ["کتاب", "استاد", "وقت", "کلاس"], a: "کتاب" },
+            { q: "وہ کیا ہے جو جتنا دو اتنا کم ہوتا ہے؟", o: ["وقت", "دولت", "محبت", "علم"], a: "وقت" },
+            { q: "وہ کیا ہے جو ہمیشہ ساتھ رہتا ہے مگر نظر نہیں آتا؟", o: ["سایہ", "قسمت", "ہوا", "دل"], a: "قسمت" },
+            { q: "وہ کیا ہے جو انسان کے بغیر بھی چلتا ہے؟", o: ["وقت", "گاڑی", "مشین", "دل"], a: "وقت" },
+            { q: "وہ کیا ہے جو بولنے سے ٹوٹ جاتا ہے؟", o: ["خاموشی", "وعدہ", "دل", "اعتماد"], a: "خاموشی" },
+            { q: "وہ کیا ہے جو آنکھوں سے دیکھا مگر ہاتھ سے نہیں پکڑا؟", o: ["خواب", "سایہ", "دھواں", "ہوا"], a: "خواب" },
+            { q: "وہ کیا ہے جو سب کو چاہیے مگر کسی کے پاس وقت نہیں؟", o: ["وقت", "پیسہ", "نیند", "سکون"], a: "وقت" },
+            { q: "وہ کیا ہے جو جتنا سیکھو اتنا کم لگتا ہے؟", o: ["علم", "وقت", "دولت", "طاقت"], a: "علم" }
+        ];
+
+        let i = 0, score = 0, time = 10, timer;
+        const qEl = document.getElementById("question");
+        const oEl = document.getElementById("options");
+        const tEl = document.getElementById("timer");
+        const sEl = document.getElementById("score");
+
+        function loadQ() {
+            if (audioUnlocked && bgSound.paused) bgSound.play();
+            qEl.innerText = quizData[i].q;
+            oEl.innerHTML = "";
+            quizData[i].o.forEach(opt => {
+                let b = document.createElement("button");
+                b.className = "option";
+                b.innerText = opt;
+                b.onclick = () => check(b, opt);
+                oEl.appendChild(b);
+            });
+            time = 10;
+            tEl.innerText = "⏱️ " + time;
+            timer = setInterval(() => {
+                if (time <= 5) timerSound.play();
+                time--;
+                tEl.innerText = "⏱️ " + time;
+                if (time == 0) { clearInterval(timer); showAns(); }
+            }, 1000);
+        }
+
+        function check(btn, val) {
+            clearInterval(timer);
+            document.querySelectorAll(".option").forEach(b => b.disabled = true);
+            if (val === quizData[i].a) {
+                btn.classList.add("correct");
+                correctSound.play();
+                score++;
+            } else {
+                btn.classList.add("wrong");
+                wrongSound.play();
+                showAns();
+            }
+            sEl.innerText = "اسکور: " + score;
+        }
+
+        function showAns() {
+            document.querySelectorAll(".option").forEach(b => {
+                if (b.innerText === quizData[i].a) b.classList.add("correct");
+            });
+        }
+
+        function nextQ() {
+            i++;
+            if (i < quizData.length) loadQ();
+            else {
+                bgSound.pause();
+                winSound.play();
+                document.body.innerHTML = `
+<div class="win">
+<h1>🎆 مبارک ہو!</h1>
+<h2>اسکور: ${score}/${quizData.length}</h2>
+<button class="restart" onclick="location.reload()">دوبارہ شروع کریں</button>
+</div>`;
+            }
+        }
+
+        loadQ();
+    </script>
+
+</body>
+
+</html>
